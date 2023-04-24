@@ -1,0 +1,22 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: authentication-client-gateway
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: neatnetapp-client
+            client-secret: 2IOf7VskGkMybibgtSJ1TrQI5LN8NCxe
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://authentication-client-gateway:8083/login/oauth2/code/neatnetapp-client"
+            scope:
+              - openid
+        provider:
+          keycloak:
+            user-name-attribute: preferred_username
+            issuer-uri: http://keycloak:8081/realms/neatnet

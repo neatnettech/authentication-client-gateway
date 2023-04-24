@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:15
+    networks:
+      - internal
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: keyclock_db
+    ports:
+      - "5432:5432"
+
+  authentication-gateway-client:
+    image: acg
+    networks:
+      - internal
+    ports:
+      - "8083:8083"
+    depends_on:
+      - keycloak
+      - db
+
+  us:
+    image: us
+    networks:
+      - internal
+    ports:
+      - "9090:9090"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    networks:
+      - internal
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: db
+      DB_SCHEMA: public
+      DB_DATABASE: keyclock_db
+      DB_USER: admin
+      DB_PASSWORD: admin
+      KEYCLOCK_HOSTNAME: backend-keyclock-auth
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8081"
+    command:
+      - start-dev --import-realm --http-port 8081
+    depends_on:
+      - db
+    volumes:
+      - ./import:/opt/keycloak/data/import
+
+networks:
+  internal:
+    external: true
